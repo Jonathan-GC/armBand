@@ -1,3 +1,12 @@
+'''
+	Original by dzhu
+		https://github.com/dzhu/myo-raw
+
+	Edited by Jonathan Gonzalez Caicedo - Fernando Cosentino
+		http://www.fernandocosentino.net/pyoconnect
+'''
+
+
 from __future__ import print_function
 
 import enum
@@ -9,7 +18,6 @@ import time
 
 import serial
 from serial.tools.list_ports import comports
-
 
 from common import *
 
@@ -75,7 +83,6 @@ class BT(object):
             if not c: return None
 
             ret = self.proc_byte(ord(c))
-            #print(ret)
             if ret:
                 if ret.typ == 0x80:
                     self.handle_event(ret)
@@ -193,7 +200,7 @@ class MyoRaw(object):
         return None
 
     def run(self, timeout=None):
-        return self.bt.recv_packet(timeout)
+        self.bt.recv_packet(timeout)
 
     def connect(self):
         ## stop everything from before
@@ -239,8 +246,7 @@ class MyoRaw(object):
             self.write_attr(0x28, b'\x01\x00')
             ## enable IMU data
             self.write_attr(0x1d, b'\x01\x00')
-	    ##print ("DEnnis")
-	    
+
             ## Sampling rate of the underlying EMG sensor, capped to 1000. If it's
             ## less than 1000, emg_hz is correct. If it is greater, the actual
             ## framerate starts dropping inversely. Also, if this is much less than
@@ -282,10 +288,7 @@ class MyoRaw(object):
                 ## something
                 emg = vals[:8]
                 moving = vals[8]
-                self.on_emg(emg, moving) #aqui Plotea los datos
-		#print(p)
-                
-               
+                self.on_emg(emg, moving)
             elif attr == 0x1c:
                 vals = unpack('10h', pay)
                 quat = vals[:4]
@@ -303,6 +306,7 @@ class MyoRaw(object):
                     self.on_pose(Pose(val))
             else:
                 print('data with unknown attr: %02X %s' % (attr, p))
+
         self.bt.add_handler(handle_data)
 
 
@@ -325,7 +329,7 @@ class MyoRaw(object):
         '''
 
         self.write_attr(0x28, b'\x01\x00')
-        self.write_attr(0x19, b'\x01\x03\x01\x01\x00')
+        #self.write_attr(0x19, b'\x01\x03\x01\x01\x00')
         self.write_attr(0x19, b'\x01\x03\x01\x01\x01')
 
     def mc_start_collection(self):
@@ -411,7 +415,7 @@ if __name__ == '__main__':
         HAVE_PYGAME = False
 
     if HAVE_PYGAME:
-        w, h = 1200, 400
+        w, h = 1400, 400
         scr = pygame.display.set_mode((w, h))
 
     last_vals = None
@@ -447,6 +451,7 @@ if __name__ == '__main__':
         if HAVE_PYGAME:
             ## update pygame display
             plot(scr, [e / 2000. for e in emg])
+            #print(emg)
         else:
             print(emg)
 
@@ -464,24 +469,23 @@ if __name__ == '__main__':
 
     try:
         while True:
-            #print(time.time()) >> f1
-            #m.run(1)
-            if m.run(1) is None:
-                print("Connection lost, try to reconnect")
-                m.connect()
-            else:
-                if HAVE_PYGAME:
-                    for ev in pygame.event.get():
-                        if ev.type == QUIT or (ev.type == KEYDOWN and ev.unicode == 'q'):
-                            raise KeyboardInterrupt()
-                        elif ev.type == KEYDOWN:
-                            if K_1 <= ev.key <= K_3:
-                                m.vibrate(ev.key - K_0)
-                            if K_KP1 <= ev.key <= K_KP3:
-                                m.vibrate(ev.key - K_KP0)
-    
+            m.run(1)
+
+            if HAVE_PYGAME:
+                for ev in pygame.event.get():
+                    if ev.type == QUIT or (ev.type == KEYDOWN and ev.unicode == 'q'):
+                        raise KeyboardInterrupt()
+                    elif ev.type == KEYDOWN:
+                        if K_1 <= ev.key <= K_3:
+                            print("pille su famoso::-->> " , ev.key - K_0)
+                            m.vibrate(ev.key - K_0)
+                        if K_KP1 <= ev.key <= K_KP3:
+                            print("pille su famoso::-->> " , ev.key - K_P0)
+                            m.vibrate(ev.key - K_KP0)
+                            
+
     except KeyboardInterrupt:
         pass
     finally:
         m.disconnect()
-        print('bye')
+        print()
