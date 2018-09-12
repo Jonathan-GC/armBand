@@ -429,9 +429,7 @@ if __name__ == '__main__':
     try:
         cont=0
         while True:
-            m.run(1000)
-            #cont= 1+cont
-            #print("cont= ", cont)
+            m.run(1)
         #except KeyboardInterrupt:
         #pass
     finally:
