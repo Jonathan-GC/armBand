@@ -1,19 +1,25 @@
-from __future__ import print_function
+'''
+	Original by dzhu
+		https://github.com/dzhu/myo-raw
 
-import argparse
+	Edited by Jonathan Gonzalez Caicedo - Fernando Cosentino
+		http://www.fernandocosentino.net/pyoconnect
+'''
+
+
+#from __future__ import print_function
+
 import enum
 import re
 import struct
 import sys
 import threading
 import time
-import math
+
 import serial
 from serial.tools.list_ports import comports
+
 from common import *
-from std_msgs.msg import String, UInt8, Header, MultiArrayLayout, MultiArrayDimension, Float64MultiArray
-from geometry_msgs.msg import Quaternion, Vector3
-from sensor_msgs.msg import Imu
 
 def multichr(ords):
     if sys.version_info[0] >= 3:
@@ -44,9 +50,8 @@ class Pose(enum.Enum):
     WAVE_OUT = 3
     FINGERS_SPREAD = 4
     THUMB_TO_PINKY = 5
-    UNKNOWN = 255
-
-
+    UNKNOWN = 255	 
+    
 class Packet(object):
     def __init__(self, ords):
         self.typ = ords[0]
@@ -75,8 +80,7 @@ class BT(object):
         while timeout is None or time.time() < t0 + timeout:
             if timeout is not None: self.ser.timeout = t0 + timeout - time.time()
             c = self.ser.read()
-            if not c:
-                return None
+            if not c: return None
 
             ret = self.proc_byte(ord(c))
             if ret:
@@ -89,8 +93,7 @@ class BT(object):
         t0 = time.time()
         while time.time() < t0 + timeout:
             p = self.recv_packet(t0 + timeout - time.time())
-            if not p:
-                return res
+            if not p: return res
             res.append(p)
         return res
 
@@ -166,8 +169,7 @@ class BT(object):
             p = self.recv_packet()
 
             ## no timeout, so p won't be None
-            if p.typ == 0:
-                return p
+            if p.typ == 0: return p
 
             ## not a response: must be an event
             self.handle_event(p)
@@ -294,7 +296,7 @@ class MyoRaw(object):
                 gyro = vals[7:10]
                 self.on_imu(quat, acc, gyro)
             elif attr == 0x23:
-                typ, val, xdir = unpack('3B', pay)
+                typ, val, xdir, _,_,_ = unpack('6B', pay)
 
                 if typ == 1: # on arm
                     self.on_arm(Arm(val), XDirection(xdir))
@@ -327,7 +329,45 @@ class MyoRaw(object):
         '''
 
         self.write_attr(0x28, b'\x01\x00')
+        #self.write_attr(0x19, b'\x01\x03\x01\x01\x00')
+        self.write_attr(0x19, b'\x01\x03\x01\x01\x01')
+
+    def mc_start_collection(self):
+        '''Myo Connect sends this sequence (or a reordering) when starting data
+        collection for v1.0 firmware; this enables raw data but disables arm and
+        pose notifications.
+        '''
+
+        self.write_attr(0x28, b'\x01\x00')
+        self.write_attr(0x1d, b'\x01\x00')
+        self.write_attr(0x24, b'\x02\x00')
+        self.write_attr(0x19, b'\x01\x03\x01\x01\x01')
+        self.write_attr(0x28, b'\x01\x00')
+        self.write_attr(0x1d, b'\x01\x00')
+        self.write_attr(0x19, b'\x09\x01\x01\x00\x00')
+        self.write_attr(0x1d, b'\x01\x00')
+        self.write_attr(0x19, b'\x01\x03\x00\x01\x00')
+        self.write_attr(0x28, b'\x01\x00')
+        self.write_attr(0x1d, b'\x01\x00')
         self.write_attr(0x19, b'\x01\x03\x01\x01\x00')
+
+    def mc_end_collection(self):
+        '''Myo Connect sends this sequence (or a reordering) when ending data collection
+        for v1.0 firmware; this reenables arm and pose notifications, but
+        doesn't disable raw data.
+        '''
+
+        self.write_attr(0x28, b'\x01\x00')
+        self.write_attr(0x1d, b'\x01\x00')
+        self.write_attr(0x24, b'\x02\x00')
+        self.write_attr(0x19, b'\x01\x03\x01\x01\x01')
+        self.write_attr(0x19, b'\x09\x01\x00\x00\x00')
+        self.write_attr(0x1d, b'\x01\x00')
+        self.write_attr(0x24, b'\x02\x00')
+        self.write_attr(0x19, b'\x01\x03\x00\x01\x01')
+        self.write_attr(0x28, b'\x01\x00')
+        self.write_attr(0x1d, b'\x01\x00')
+        self.write_attr(0x24, b'\x02\x00')
         self.write_attr(0x19, b'\x01\x03\x01\x01\x01')
 
     def vibrate(self, length):
@@ -367,28 +407,34 @@ class MyoRaw(object):
 
 
 if __name__ == '__main__':
-
-
-	parser = argparse.ArgumentParser()
-    parser.add_argument('serial_port', nargs='?', default=None)
-
-    parser.add_argument('-i', '--imu-topic', default='myo_imu')
-    parser.add_argument('-e', '--emg-topic', default='myo_emg')
-    parser.add_argument('-a', '--arm-topic', default='myo_arm')
-    parser.add_argument('-g', '--gest-topic', default='myo_gest')
-
-    args = parser.parse_args()
-
-    conectado = 0
-
-    print("Iniciando")
-    while(conectado == 0):
-        try:
-            m = MyoRaw(args.serial_port)
-            conectado = 1;
-        except (ValueError, KeyboardInterrupt) as e:
-            print("Myo Armband no encontrado. Intentando conectar...")
-            
-            pass
-
     
+    m = MyoRaw(sys.argv[1] if len(sys.argv) >= 2 else None)
+
+    def proc_emg(emg, moving, times=[]):
+        
+        print(emg)
+
+        ## print framerate of received data
+        times.append(time.time())
+        if len(times) > 20:
+            #print((len(times) - 1) / (times[-1] - times[0]))
+            times.pop(0)
+
+    m.add_emg_handler(proc_emg)
+    m.connect()
+
+    m.add_arm_handler(lambda arm, xdir: print('arm', arm, 'xdir', xdir))
+    m.add_pose_handler(lambda p: print('pose', p))
+
+    try:
+        cont=0
+        while True:
+            m.run(1000)
+            #cont= 1+cont
+            #print("cont= ", cont)
+        #except KeyboardInterrupt:
+        #pass
+    finally:
+        m.disconnect()
+        print()
+
