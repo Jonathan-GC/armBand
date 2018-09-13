@@ -21,6 +21,8 @@ from serial.tools.list_ports import comports
 
 from common import *
 
+
+
 def multichr(ords):
     if sys.version_info[0] >= 3:
         return bytes(ords)
@@ -34,23 +36,23 @@ def multiord(b):
         return map(ord, b)
 
 class Arm(enum.Enum):
-    UNKNOWN = 0
-    RIGHT = 1
-    LEFT = 2
+    DESCONOCIDO = 0
+    DERECHO = 1
+    IZQUIERDO = 2
 
 class XDirection(enum.Enum):
-    UNKNOWN = 0
-    X_TOWARD_WRIST = 1
-    X_TOWARD_ELBOW = 2
+    DESCONOCIDO = 0
+    Hacia_Muneca = 1
+    Hacia_Codo = 2
 
 class Pose(enum.Enum):
-    REST = 0
-    FIST = 1
-    WAVE_IN = 2
-    WAVE_OUT = 3
-    FINGERS_SPREAD = 4
-    THUMB_TO_PINKY = 5
-    UNKNOWN = 255	 
+    RELAJADO = 0
+    PUNIO = 1
+    ADENTRO = 2
+    AFUERA = 3
+    ABRIR = 4
+    CLIC = 5
+    DESCONOCIDO = 255	 
     
 class Packet(object):
     def __init__(self, ords):
@@ -301,7 +303,7 @@ class MyoRaw(object):
                 if typ == 1: # on arm
                     self.on_arm(Arm(val), XDirection(xdir))
                 elif typ == 2: # removed from arm
-                    self.on_arm(Arm.UNKNOWN, XDirection.UNKNOWN)
+                    self.on_arm(Arm.DESCONOCIDO, XDirection.DESCONOCIDO)
                 elif typ == 3: # pose
                     self.on_pose(Pose(val))
             else:
@@ -313,7 +315,7 @@ class MyoRaw(object):
     def write_attr(self, attr, val):
         if self.conn is not None:
             self.bt.write_attr(self.conn, attr, val)
-
+3
     def read_attr(self, attr):
         if self.conn is not None:
             return self.bt.read_attr(self.conn, attr)
@@ -405,7 +407,6 @@ class MyoRaw(object):
         for h in self.arm_handlers:
             h(arm, xdir)
 
-
 if __name__ == '__main__':
     
     m = MyoRaw(sys.argv[1] if len(sys.argv) >= 2 else None)
@@ -419,7 +420,12 @@ if __name__ == '__main__':
         if len(times) > 20:
             #print((len(times) - 1) / (times[-1] - times[0]))
             times.pop(0)
-
+    
+    def porc_imu(quat1, acc, gyro):
+        #Covarianza
+        cov  = [0,0,0,0,0,0,0,0,0]
+        quat = "hola"
+    
     m.add_emg_handler(proc_emg)
     m.connect()
 
@@ -427,9 +433,10 @@ if __name__ == '__main__':
     m.add_pose_handler(lambda p: print('pose', p))
 
     try:
-        cont=0
+        
         while True:
-            m.run(1)
+            m.run()
+            
         #except KeyboardInterrupt:
         #pass
     finally:
