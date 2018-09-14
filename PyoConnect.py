@@ -26,7 +26,7 @@ except:
 from common import *
 #importacion de datos de la myo desde el archivo myo_raw
 #varibles importadas
-from myo_raw import MyoRaw, Pose, Arm, XDirection 
+from myo_raw_jonathan import MyoRaw, Pose, Arm, XDirection 
 
 
 class Myo(MyoRaw):
@@ -82,7 +82,7 @@ class Myo(MyoRaw):
 
     def tick(self):
         now = time.time()
-        if now - self.last_tick >= 0.01:
+        if (now - self.last_tick >= 0.01):
 
             if self.onPeriodic != None:
                 self.onPeriodic()
