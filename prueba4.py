@@ -15,7 +15,7 @@ publish_Brazo = []
 normQuat = []
 normACC = []
 normGyro = []
-
+poseActual = ""
 
 # ****************************************************
 
@@ -67,7 +67,7 @@ def imu_handler(quat, acc, gyro):
     current_yaw = -math.atan2(2.0 * (q0 * q3 + q1 * q2), 1.0 - 2.0 * (q2 * q2 + q3 * q3))
 
     ##Saca la normal del vector y lo escala
-    quatNorm = math.sqrt(q0*q0 + q1*q1 + q2*q2 + q4*q4)
+    quatNorm = math.sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3)
     normQuat = q0/quatNorm, q1/quatNorm, q2/quatNorm, q3/quatNorm
     normACC = accX/scaleAceleracion, accY/scaleAceleracion, accZ/scaleAceleracion
     normGyro = giroX/scaleGiro, giroY/scaleGiro, giroZ/scaleGiro
@@ -88,14 +88,16 @@ def imu_handler(quat, acc, gyro):
 band.add_emg_handler(proc_emg)
 band.add_imu_handler(imu_handler)
 band.add_arm_handler(lambda arm, xdir: print('Brazo: ', arm, 'Direccion: ', xdir))
-#band.add_pose_handler(lambda p: print('Posicion', p))
+band.add_pose_handler(lambda p: print('Posicion', p), poseActual = p )
 
 band.connect()
 try:
     cont = 0
-    while cont <= 1000:
+    while True:
         band.run()
-        cont += 1
+        #cont += 1
+        if poseActual = "PUNIO":
+            break
         #print(cont)
         
         
