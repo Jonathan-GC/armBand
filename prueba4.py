@@ -12,6 +12,11 @@ publish_imu = []
 publish_EMG = []
 publish_Brazo = []
 
+normQuat = []
+normACC = []
+normGyro = []
+
+
 # ****************************************************
 
 
@@ -40,33 +45,44 @@ def imu_handler(quat, acc, gyro):
     scaleAceleracion = 2048.0
     scaleGiro = 16.0
     
-    
+    ##Desempaqueta el Vector quat, acc, gyro
     q0, q1, q2,q3 = quat
-    
+    accX, accY, accZ = acc
+    giroX, giroY, giroZ = gyro
+
+
+    ##Escala el quaternion 
     q0 = q0/scaleOrientacion
     q1 = q1/scaleOrientacion
     q2 = q2/scaleOrientacion
     q3 = q3/scaleOrientacion
+
     
+    ##tranlasion del acc y giro para usos futuros
     current_gyro = gyro
     current_accel = acc
+    ##Calculos de giro, Alabeo y cabeceo
     current_roll = math.atan2(2.0 * (q0 * q1 + q2 * q3), 1.0 - 2.0 * (q1 * q1 + q2 * q2))
     current_pitch = -math.asin(max(-1.0, min(1.0, 2.0 * (q0 * q2 - q3 * q1))))
     current_yaw = -math.atan2(2.0 * (q0 * q3 + q1 * q2), 1.0 - 2.0 * (q2 * q2 + q3 * q3))
- 
+
+    ##Saca la normal del vector y lo escala
+    quatNorm = math.sqrt(q0*q0 + q1*q1 + q2*q2 + q4*q4)
+    normQuat = q0/quatNorm, q1/quatNorm, q2/quatNorm, q3/quatNorm
+    normACC = accX/scaleAceleracion, accY/scaleAceleracion, accZ/scaleAceleracion
+    normGyro = giroX/scaleGiro, giroY/scaleGiro, giroZ/scaleGiro
+
+
     Vel=(((current_pitch)*180/math.pi)*2)-75 #ecuacion que define la vel del Jumpong
     Giro=(((current_roll)*180/math.pi))*0.6667 - 28.3333 #ecuacion que define la velocidad de giro
     
-    vector_temp = current_gyro,current_accel,current_roll,current_pitch,current_yaw
-    print(vector_temp)
+    ##LA tabla de salida será:
+    ##[[quat],[gyro],[accel],giro,alabeo,cabeceo, [normalAcel], [normalGyro]]
+    vector_temp = quat, current_gyro,current_accel,current_roll,current_pitch,current_yaw,normACC,normGyro
     
+    ##Anexa en el timesTamp al Vector
     publish_imu.append(vector_temp)
-    '''
-    publish_imu.insert(1,current_accel)
-    publish_imu.insert(2,current_roll)
-    publish_imu.insert(3,current_pitch)
-    publish_imu.insert(4,current_yaw)
-    '''
+
 #*****************************************************
     
 band.add_emg_handler(proc_emg)
