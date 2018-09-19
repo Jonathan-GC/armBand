@@ -1,11 +1,21 @@
 #!/usr/bin/python
-
+import sys
 from myo_raw_jonathan import *
 import math
 from io import open
+#from pykeyboard import PyKeyboard
 
+import fcntl
+fd= sys.stdin.fileno()
+flags= fcntl.fcntl(fd,fcntl.F_GETFL)
+fcntl.fcntl(fd, fcntl.F_SETFL, flags|os.O_NONBLOCK)
 
+#pTeclado = PyKeyboard()
 band = MyoRaw(sys.argv[1] if len(sys.argv) >= 2 else None)
+
+#Variables Programa
+flag = 'r'
+
 
 #Variables Publicas
 publish_imu = []
@@ -18,8 +28,13 @@ normGyro = []
 poseActual = ""
 
 # ****************************************************
-
-
+def posicion_Actual(poses):
+    #print(poses)
+    poseActual = poses.name
+    #str(poseActual)
+    print(poseActual)
+  
+    
 def escribirArchivo(archivo,vectorIn):
     
     print("Escribiendo Archivo")
@@ -88,30 +103,40 @@ def imu_handler(quat, acc, gyro):
 band.add_emg_handler(proc_emg)
 band.add_imu_handler(imu_handler)
 band.add_arm_handler(lambda arm, xdir: print('Brazo: ', arm, 'Direccion: ', xdir))
-band.add_pose_handler(lambda p: print('Posicion', p), poseActual = p )
+band.add_pose_handler(posicion_Actual)
+#band.add_pose_handler(lambda p: print('Posicion', p))
 
-band.connect()
-try:
-    cont = 0
-    while True:
-        band.run()
-        #cont += 1
-        if poseActual = "PUNIO":
-            break
-        #print(cont)
+if __name__ == '__main__':
+    band.connect()
+    try:
         
+        while flag == 'r':
+            band.run()
+            if sys.stdin.read(1)=='f':
+                #if tecla == 'n':
+                band.vibrate(1)
+                flag = 'c'
+            #    print("presiono: ", tecla, " chao...")
+               
+            #poseActual = band.add_pose_handler(posicion_Actual)
+            #print(poseActual)
+            #if poseActual == "PUNIO":
+            #    contador = 1
+            #    print("entra aquie")
+            
+            
+            
+    finally:
+        band.vibrate(3)
+        band.disconnect()
+        print("longitud EMG: ",len(publish_EMG))
+        print("longitud IMU: ",len(publish_imu))
+
+
+    escribirArchivo("Datos IMU.txt",publish_imu)
+    escribirArchivo("Datos EMG.txt",publish_EMG)
+
+    print(publish_imu)
         
-finally:
-    band.vibrate(3)
-    band.disconnect()
-    print("longitud EMG: ",len(publish_EMG))
-    print("longitud IMU: ",len(publish_imu))
-
-
-escribirArchivo("Datos IMU.txt",publish_imu)
-escribirArchivo("Datos EMG.txt",publish_EMG)
-
-print(publish_imu)
-    
 
 
