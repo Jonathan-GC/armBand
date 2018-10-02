@@ -14,7 +14,7 @@ from io import open
 band = MyoRaw(sys.argv[1] if len(sys.argv) >= 2 else None)
 
 #Variables Programa
-flag = 'r'
+cont = 0
 
 
 #Variables Publicas
@@ -35,12 +35,14 @@ def posicion_Actual(poses):
     print(poseActual)
   
     
-def escribirArchivo(archivo,vectorIn):
+def escribirArchivo(archivo,vectorIn,busca1,busca2,remp):
     
     print("Escribiendo Archivo")
     datos=open(archivo,"w")
     for element in vectorIn:
         flag = str(element)+"\n"
+        flag = flag.replace(busca1,remp)
+        flag = flag.replace(busca2,remp)
         datos.write(flag)
         
     datos.close()
@@ -110,13 +112,9 @@ if __name__ == '__main__':
     band.connect()
     try:
         
-        while flag == 'r':
+        while cont < 1000:
             band.run()
-            if sys.stdin.read(1)=='f':
-                #if tecla == 'n':
-                band.vibrate(1)
-                flag = 'c'
-            #    print("presiono: ", tecla, " chao...")
+            cont += 1
                
             #poseActual = band.add_pose_handler(posicion_Actual)
             #print(poseActual)
@@ -134,10 +132,9 @@ if __name__ == '__main__':
         print("longitud IMU: ",len(publish_imu))
 
 
-    escribirArchivo("Datos IMU.txt",publish_imu)
-    escribirArchivo("Datos EMG.txt",publish_EMG)
-
-    print(publish_imu)
+    escribirArchivo("Datos IMU.csv",publish_imu,"(",")","")
+    escribirArchivo("Datos EMG.csv",publish_EMG,"(",")","")
         
+
 
 
