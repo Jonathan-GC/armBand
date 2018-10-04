@@ -56,7 +56,7 @@ class CLassificador(object):
         
         arregloX = df[df.columns[:-1]].values
         arregloy = df[df.columns[-1]].values  #as_matrix()
-        print(arregloX[2157])
+        print(arregloX[len(arregloy)-2])
         
         X_train,X_test,y_train,y_test = train_test_split(arregloX, arregloy)
         clf = KNeighborsClassifier(self.clusters)
