@@ -21,40 +21,57 @@ K = 15
 
 class CLassificador(object):
     
-    clusters = 9
+    clusters = 7
     clf = joblib.load('modeloEntrenado.pkl')
     
     def __init__(self):
-        for i in range(10):
-            with open('vals%d.dat' % i, 'ab') as f: pass
+        pass
+        
+        #for i in range(10):
+         #   with open('vals%d.dat' % i, 'ab') as f: pass
         #self.read_data()
         #knn = KNeighborsClassifier(n_neighbors=10)
     
-    def store_data(self, vals):
-        with open("setDataCompleta.csv","w") as f:
-            f.write(pack('8H', *vals))
-            f.close()
+    def store_data(self, target, vals):
+        with open("setDataCompleta.csv","a") as f:
+            
+            flag = str(vals) + "\t" + str(target) + "\n"
+            flag = flag.replace("(","")
+            flag = flag.replace(")","")
+            f.write(flag)
+                
+            #f.close()
+
+            
+            #f.write(pack('8H', *vals))
+            #f.close()
         #colocar Daros en los archivos
         #self.train(np.vstack([self.X, vals]), np.hstack([self.Y, [cls]]))   
     
     
-    
     def entrenar(self):
+        print("A entrenar")
         archivo = "setDataCompleta.csv"
         df = pd.read_csv(archivo)
         
         arregloX = df[df.columns[:-1]].values
         arregloy = df[df.columns[-1]].values  #as_matrix()
+        print(arregloX[2157])
         
         X_train,X_test,y_train,y_test = train_test_split(arregloX, arregloy)
         clf = KNeighborsClassifier(self.clusters)
+        #print(self.clusters)
         clf.fit(X_train, y_train)      
-        
-        
+        print(clf.score(X_test, y_test))
+        ##Exportacion del modelo entrenado
+        joblib.dump(clf, 'modeloEntrenado.pkl')
 
     def classify(self, d):
-        return self.clf.predict([d])
-    
+        try:
+            return self.clf.predict([d])
+        except ValueError:
+            #print("El modelo esta mal creado o las etiquetas no son suficientes de acuerdo a los nodos")
+            return [0]
 
 class Myo(MyoRaw):
     hist_len = 35

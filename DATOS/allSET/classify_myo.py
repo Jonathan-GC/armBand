@@ -40,8 +40,9 @@ if __name__ == '__main__':
         w, h = 800, 320
         scr = pygame.display.set_mode((w, h))
         font = pygame.font.Font(None, 30)
-
-    m = myo.Myo(myo.NNClassifier(), sys.argv[1] if len(sys.argv) >= 2 else None)
+    
+    m = myo_KN.Myo(myo_KN.CLassificador(), sys.argv[1] if len(sys.argv) >= 2 else None)
+      
     hnd = EMGHandler(m)
     m.add_emg_handler(hnd)
     m.connect()
@@ -75,8 +76,9 @@ if __name__ == '__main__':
                     
 
                     clr = (0,200,0) if i == r else (255,255,255)
-
-                    txt = font.render('%5d' % (m.cls.Y == i).sum(), True, (255,255,255))
+                    J=2
+                    txt = font.render('%5d', True, (255,255,255))
+                    #txt = font.render('%5d' % (m.cls.Y == i).sum(), True, (255,255,255))
                     scr.blit(txt, (x + 20, y))
                     
 
@@ -86,13 +88,13 @@ if __name__ == '__main__':
                     scr.fill((0,0,0), (x+130, y + txt.get_height() / 2 - 10, len(m.history) * 20, 20))
                     scr.fill(clr, (x+130, y + txt.get_height() / 2 - 10, m.history_cnt[i] * 20, 20))
 
-                if HAVE_SK and m.cls.nn is not None:
+                '''if HAVE_SK and m.cls.nn is not None:
                     dists, inds = m.cls.nn.kneighbors(hnd.emg)
                     print(inds)
                     for i, (d, ind) in enumerate(zip(dists[0], inds[0])):
                         y = m.cls.Y[myo.SUBSAMPLE*ind]
                         text(scr, font, '%d %6d' % (y, d), (650, 20 * i))
-
+                '''
                 pygame.display.flip()
             else:
                 for i in range(10):
