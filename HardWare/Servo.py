@@ -4,10 +4,11 @@ import RPi.GPIO as GPIO
 
 class Servo():
 
-    frecuencia = 300
+    frecuencia = 500
     p = 0
 
     def __init__(self,pinOUT):
+
         self.pinOUT = pinOUT
         GPIO.setmode(GPIO.BOARD)
         GPIO.setwarnings(False)
@@ -17,22 +18,39 @@ class Servo():
 
     def writeServo(self, valor):
         self.valor = valor
-        self.p.ChangeDutyCycle(self.valor)
+        if 180 <= self.valor:
+            self.valor = 100
+        elif self.valor < 0:
+            self.valor = 0
+
+        self.valor *= 10/18
+        print(self.valor)
+        self.p.ChangeDutyCycle(int(self.valor))
 
     def limpiarServo(self):
-        GPIO.cleanup()
+        self.p.stop()
 
 if __name__ == '__main__':
 
-    servo1 = Servo(32)
+    try:
+        servo1 = Servo(32)
+        while True:
+            
+            
+            for i in range(0,180,5):
+                servo1.writeServo(i)
+                time.sleep(0.10)
+            
+            
+            
+            #servo1.limpiarServo()
+    except KeyboardInterrupt:
+        pass
 
-    for i in range(100):
-        servo1.writeServo(i)
-        time.sleep(1)
-
-    servo1.writeServo(0)
-    servo1.limpiarServo()
-        
+    finally:
+        servo1.limpiarServo()
+    
+            
     
     
     

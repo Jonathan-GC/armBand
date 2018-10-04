@@ -33,5 +33,5 @@ try:
         '''
 except KeyboardInterrupt:
     pass
-#p.stop()
-GPIO.cleanup()
+p.stop()
+#GPIO.cleanup()
