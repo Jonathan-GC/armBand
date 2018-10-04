@@ -10,7 +10,7 @@ import time
 
 #Variables Publicas
 publish_EMG = [30,30,90]
-posiciones = ["Relajado","Puño","Señalar", "Abrir Mano", "Meñique", "Pinza", "insulto",]
+posiciones = ["Relajado","Puño","Señalar", "Abrir Mano", "Meñique", "Pinza"]
 
 try:
     import pygame
@@ -79,18 +79,19 @@ if __name__ == '__main__':
                     if ev.type == QUIT or (ev.type == KEYDOWN and ev.unicode == 'q'):
                         raise KeyboardInterrupt()
                     elif ev.type == KEYDOWN:
-                        if K_0 <= ev.key <= K_6:
+                        if K_0 <= ev.key <= K_5:
                             contador +=1
                             print("Grabando posicion " + posiciones[ev.key-K_0] + " dato No: " + str(contador) )                          
                             hnd.recording = ev.key - K_0
                             
-                        elif K_KP0 <= ev.key <= K_KP6:
+                        elif K_KP0 <= ev.key <= K_KP5:
                             hnd.recording = ev.key - K_Kp0
                         elif ev.unicode == 'r':
-                            #hnd.cls.entrenar()
                             m.cls.entrenar()
+                        elif ev.unicode == 'd':
+                            m.cls.limpiar_data()
                     elif ev.type == KEYUP:
-                        if K_0 <= ev.key <= K_6 or K_KP0 <= ev.key <= K_KP6:
+                        if K_0 <= ev.key <= K_5 or K_KP0 <= ev.key <= K_KP5:
                             hnd.recording = -1
                 
                 

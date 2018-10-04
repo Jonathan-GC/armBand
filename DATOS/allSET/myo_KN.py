@@ -21,7 +21,7 @@ K = 15
 
 class CLassificador(object):
     
-    clusters = 7
+    clusters = 6
     clf = joblib.load('modeloEntrenado.pkl')
     
     def __init__(self):
@@ -35,7 +35,7 @@ class CLassificador(object):
     def store_data(self, target, vals):
         with open("setDataCompleta.csv","a") as f:
             
-            flag = str(vals) + "\t" + str(target) + "\n"
+            flag = str(vals) + "\t" + str(int(target)) + "\n"
             flag = flag.replace("(","")
             flag = flag.replace(")","")
             f.write(flag)
@@ -47,24 +47,30 @@ class CLassificador(object):
             #f.close()
         #colocar Daros en los archivos
         #self.train(np.vstack([self.X, vals]), np.hstack([self.Y, [cls]]))   
-    
+    def limpiar_data(self):
+        with open("setDataCompleta.csv","w") as f:                      
+            f.write("")
+            f.close()
     
     def entrenar(self):
-        print("A entrenar")
-        archivo = "setDataCompleta.csv"
-        df = pd.read_csv(archivo)
+        try:
+            print("A entrenar")
+            archivo = "setDataCompleta.csv"
+            df = pd.read_csv(archivo)
         
-        arregloX = df[df.columns[:-1]].values
-        arregloy = df[df.columns[-1]].values  #as_matrix()
-        print(arregloX[len(arregloy)-2])
-        
-        X_train,X_test,y_train,y_test = train_test_split(arregloX, arregloy)
-        clf = KNeighborsClassifier(self.clusters)
-        #print(self.clusters)
-        clf.fit(X_train, y_train)      
-        print(clf.score(X_test, y_test))
-        ##Exportacion del modelo entrenado
-        joblib.dump(clf, 'modeloEntrenado.pkl')
+            arregloX = df[df.columns[:-1]].values
+            arregloy = df[df.columns[-1]].values  #as_matrix()
+            print(arregloX[len(arregloy)-2])
+            
+            X_train,X_test,y_train,y_test = train_test_split(arregloX, arregloy)
+            clf = KNeighborsClassifier(self.clusters)
+            #print(self.clusters)
+            clf.fit(X_train, y_train)      
+            print(clf.score(X_test, y_test))
+            ##Exportacion del modelo entrenado
+            joblib.dump(clf, 'modeloEntrenado.pkl')
+        except ValueError:
+            print("problemas para establecer el set de datos, intente de nuevo y Revise sus datos")
 
     def classify(self, d):
         try:
