@@ -3,8 +3,9 @@ import RPi.GPIO as GPIO
 
 
 class Servo():
-
-    frecuencia = 500
+    ##Encontré esta frecuencia y me parecio la idel para mi servo
+    ##MG995 Tower PRO
+    frecuencia = 450
     p = 0
 
     def __init__(self,pinOUT):
@@ -22,10 +23,14 @@ class Servo():
             self.valor = 100
         elif self.valor < 0:
             self.valor = 0
-
-        self.valor *= 10/18
-        print(self.valor)
-        self.p.ChangeDutyCycle(int(self.valor))
+        
+        ##Aqui esta la linealizacion para que de valores mucho mas exactos
+        ##Como se ve tiene la forma X=mx + b
+        #self.valor = (39/90)*self.valor + 0
+        self.valor = (5/9)*self.valor + 0
+        flag = int(self.valor)
+        #print(flag)
+        self.p.ChangeDutyCycle(flag)
 
     def limpiarServo(self):
         self.p.stop()
@@ -38,8 +43,9 @@ if __name__ == '__main__':
             
             
             for i in range(0,180,5):
+                print(i)
                 servo1.writeServo(i)
-                time.sleep(0.10)
+                time.sleep(0.5)
             
             
             

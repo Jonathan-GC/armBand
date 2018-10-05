@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import subprocess
 import myo_KN
 import sys
 import struct
 import time
 
+from HardWare import Servo
 
 
 #Variables Publicas
 publish_EMG = [30,30,90]
-posiciones = ["Relajado","Puño","Señalar", "Abrir Mano", "Meñique", "Pinza"]
+posiciones = ["Relajado","Puño","Señalar", "Pinza", "Meñique", "Abrir Mano"]
 
 try:
     import pygame

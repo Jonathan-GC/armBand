@@ -76,7 +76,7 @@ class CLassificador(object):
         try:
             return self.clf.predict([d])
         except ValueError:
-            #print("El modelo esta mal creado o las etiquetas no son suficientes de acuerdo a los nodos")
+            print("El modelo esta mal creado o las etiquetas no son suficientes de acuerdo a los nodos")
             return [0]
 
 class Myo(MyoRaw):
