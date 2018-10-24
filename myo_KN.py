@@ -80,7 +80,7 @@ class CLassificador(object):
             return [0]
 
 class Myo(MyoRaw):
-    hist_len = 35
+    hist_len = 59
 
     def __init__(self, cls, tty=None):
         MyoRaw.__init__(self, tty)

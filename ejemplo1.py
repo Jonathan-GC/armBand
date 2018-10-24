@@ -29,14 +29,14 @@ def setup():
 
 if __name__ == '__main__':
 
-    '''
+    
     if HAVE_PYGAME:
         pygame.init()
         w, h = 900, 500
         scr = pygame.display.set_mode((w, h))
         pygame.display.set_caption("Datos de Protesis SENA")
         font = pygame.font.Font(None, 30)
-    '''
+    
 
     m = myo_KN.Myo(myo_KN.CLassificador(), sys.argv[1] if len(sys.argv) >= 2 else None)
     
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         while True:
             m.run()
             r = m.history_cnt.most_common(1)[0][0]
-        
+            
             
             if r != last_r:
                 print(r)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             
             
             
-            '''
+            
             if HAVE_PYGAME:
                 
                 scr.fill((0, 20, 0))#, (800, 0, 800, 320))
@@ -83,6 +83,7 @@ if __name__ == '__main__':
                 for ev in pygame.event.get():
                     if ev.type == QUIT or (ev.type == KEYDOWN and ev.unicode == 'q'):
                         raise KeyboardInterrupt()
+                    '''
                     elif ev.type == KEYDOWN:
                         if K_0 <= ev.key <= K_5:
                             contador +=1
@@ -98,9 +99,9 @@ if __name__ == '__main__':
                     elif ev.type == KEYUP:
                         if K_0 <= ev.key <= K_5 or K_KP0 <= ev.key <= K_KP5:
                             hnd.recording = -1
+                    '''
                 
                 
-               
                 
                 for i in range(len(posiciones)):
                     x = 0
@@ -126,13 +127,15 @@ if __name__ == '__main__':
                 
                 pygame.display.flip()
                 
-               ''' 
+               
                 
     except KeyboardInterrupt:
         pass
         
     finally:
+        m.vibrate(3)
         m.disconnect()
+        Servo1.limpiarServo()
         print()
 
     if HAVE_PYGAME:
