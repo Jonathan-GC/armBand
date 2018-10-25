@@ -64,6 +64,7 @@ if __name__ == '__main__':
             m.run()
             r = m.history_cnt.most_common(1)[0][0]
             
+            #Restrinjo el valor mas comun para que no cambie a cada rato
             if r != last_r:
                 #print(r)
                 last_r = r
