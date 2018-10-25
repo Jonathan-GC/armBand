@@ -1,3 +1,5 @@
+#Libreria Servo Desarrollada por Jonathan Gonzalez // 45duro
+#con similitud a la Servo.h de Arduino a la cu{al ya estoy acostumbrado
 import time
 import RPi.GPIO as GPIO
 
