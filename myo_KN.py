@@ -1,16 +1,22 @@
+#Librerias para el funcionamiento del ArmBand Myo
 from __future__ import print_function
 from collections import Counter, deque
 import struct
 import sys
 import time
 
+#Librerias para el tratamiento de Datos
 import pandas as pd
 import numpy as np
-import sklearn
-from sklearn.model_selection import train_test_split
+
+from sklearn import metrics
+from sklearn import linear_model
+from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
 from sklearn.externals import joblib
 
+#Libreria de Funcionamiento y extraccion de datos del Myo ArmBand
 from common import *
 from myo_raw_jonathan import MyoRaw
 
@@ -21,54 +27,76 @@ K = 15
 
 class CLassificador(object):
     
-    clusters = 6
+    #ojo con los clusters estos son lo que permiten el calculo perfecto de los datos
+    clusters = 5
     clf = joblib.load('modeloEntrenado.pkl')
     
+    #Contructor de inicio
     def __init__(self):
         pass
         
-        #for i in range(10):
-         #   with open('vals%d.dat' % i, 'ab') as f: pass
-        #self.read_data()
-        #knn = KNeighborsClassifier(n_neighbors=10)
-    
+    #Funcion de almacenanmiento de datos paso (etiqueta, valor del sensor)
     def store_data(self, target, vals):
         with open("setDataCompleta.csv","a") as f:
             
-            flag = str(vals) + "\t" + str(int(target)) + "\n"
+            flag = str(vals) + ", " + str(int(target)) + "\n"
             flag = flag.replace("(","")
             flag = flag.replace(")","")
             f.write(flag)
                 
-            #f.close()
+            #f.close(); evito cerrarlo para que pueda agregar multiples datos
 
-            
-            #f.write(pack('8H', *vals))
-            #f.close()
-        #colocar Daros en los archivos
-        #self.train(np.vstack([self.X, vals]), np.hstack([self.Y, [cls]]))   
+        #colocar Datos en los archivos
+        
     def limpiar_data(self):
+        #escribiendo nulo borro toda la data y efectivamente lo cierro
         with open("setDataCompleta.csv","w") as f:                      
             f.write("")
             f.close()
     
     def entrenar(self):
         try:
+            #entablo el modelo de datos .pkl
             print("A entrenar")
             archivo = "setDataCompleta.csv"
             df = pd.read_csv(archivo)
         
             arregloX = df[df.columns[:-1]].values
-            arregloy = df[df.columns[-1]].values  #as_matrix()
+            arregloy = df[df.columns[-1]].values 
             print(arregloX[len(arregloy)-2])
+                                    
+            '''
+            Aqui colocaré el modelo de entrenamiento del modelo es importante lo hay:
+                *Neigborhg supervisado,
+                *lineal,
+                *neuronal,
+                *kmeans automatico
+                *etc
+            '''
             
+            #MODELO CON BARRIOS CERCANOS FUNCIONA BIEN PERO LE FALTA PRESICION
+                #X_train,X_test,y_train,y_test = train_test_split(arregloX, arregloy)
+                #clf = KNeighborsClassifier(self.clusters)
+                #clf.fit(X_train, y_train)      
+                #print(clf.score(X_test, y_test))
+            
+            #MODELO CON Medias FUNCIONA MAL LE FALTA PRESICION
+                ##km = KMeans(self.clusters, max_iter = 10000)
+                ##km.fit(arregloX)
+                ##predicciones = km.predict(arregloX)
+                ##score = metrics.adjusted_rand_score(arregloy, predicciones)
+                ##print(score)
+            
+            #MODELO CON REGRESION LINEAL FUNCIONA BIEN PERO LE FALTA PRESICION
+            reg = linear_model.LogisticRegression()
             X_train,X_test,y_train,y_test = train_test_split(arregloX, arregloy)
-            clf = KNeighborsClassifier(self.clusters)
-            #print(self.clusters)
-            clf.fit(X_train, y_train)      
-            print(clf.score(X_test, y_test))
+            reg.fit(X_train,y_train)
+            score = reg.score(X_test,y_test)
+            print(score)
+            
             ##Exportacion del modelo entrenado
-            joblib.dump(clf, 'modeloEntrenado.pkl')
+            ##clf es la variable calsificador en este caso será km
+            joblib.dump(reg,'modeloEntrenado.pkl')
         except ValueError:
             print("problemas para establecer el set de datos, intente de nuevo y Revise sus datos")
 
@@ -76,11 +104,11 @@ class CLassificador(object):
         try:
             return self.clf.predict([d])
         except ValueError:
-            #print("El modelo esta mal creado o las etiquetas no son suficientes de acuerdo a los nodos")
+            print("El modelo esta mal creado o las etiquetas no son suficientes de acuerdo a los nodos")
             return [0]
 
 class Myo(MyoRaw):
-    hist_len = 35
+    hist_len = 59
 
     def __init__(self, cls, tty=None):
         MyoRaw.__init__(self, tty)

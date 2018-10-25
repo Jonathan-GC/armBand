@@ -1,47 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import subprocess
 import myo_KN
+from entrenando import posiciones
 import sys
 import struct
 import time
-
 from HardWare import Servo
 
 
 #Variables Publicas
-publish_EMG = [30,30,90]
-posiciones = ["Relajado","Puño","Señalar", "Pinza", "Meñique", "Abrir Mano"]
+Servo1 = Servo.Servo(32) 
+
+
 
 try:
     import pygame
     from pygame.locals import *
     HAVE_PYGAME = True
 except ImportError:
-    HAVE_PYGAME = False
+    HAVE_PYGAME = False            
 
 
-
-
-class EMGHandler(object):
-    def __init__(self, m):
-        self.recording = -1
-        self.m = m
-        #Creacion del Array
-        self.emg = (0,) * 8  
-
-    def __call__(self, emg, moving):
-        self.emg = emg
-        if self.recording >= 0:
-            self.m.cls.store_data(self.recording, emg)
-            
-            
-            
-
+def setup():
+    pass
+    
         
 
 if __name__ == '__main__':
+
     
     if HAVE_PYGAME:
         pygame.init()
@@ -53,9 +40,6 @@ if __name__ == '__main__':
 
     m = myo_KN.Myo(myo_KN.CLassificador(), sys.argv[1] if len(sys.argv) >= 2 else None)
     
-    hnd = EMGHandler(m)
-    m.add_emg_handler(hnd)
-    
     m.connect()
     last_r = 0
     contador=0
@@ -64,11 +48,29 @@ if __name__ == '__main__':
             m.run()
             r = m.history_cnt.most_common(1)[0][0]
             
-            #Restrinjo el valor mas comun para que no cambie a cada rato
+            
             if r != last_r:
-                #print(r)
+                print(r)
                 last_r = r
                 
+                if r == 1:
+                    Servo1.writeServo(50)
+                elif r == 0:
+                    Servo1.writeServo(180)
+                elif r == 2:
+                    Servo1.writeServo(0)
+                elif r == 3:
+                    Servo1.writeServo(20)
+                elif r == 4:
+                    Servo1.writeServo(100)
+                elif r == 5:
+                    Servo1.writeServo(90)
+                
+                #posiciones = ["Relajado","Puño","Señalar", "Pinza", "Meñique", "Abrir Mano"]    
+                    
+            
+            
+            
             
             if HAVE_PYGAME:
                 
@@ -81,6 +83,7 @@ if __name__ == '__main__':
                 for ev in pygame.event.get():
                     if ev.type == QUIT or (ev.type == KEYDOWN and ev.unicode == 'q'):
                         raise KeyboardInterrupt()
+                    '''
                     elif ev.type == KEYDOWN:
                         if K_0 <= ev.key <= K_5:
                             contador +=1
@@ -96,9 +99,9 @@ if __name__ == '__main__':
                     elif ev.type == KEYUP:
                         if K_0 <= ev.key <= K_5 or K_KP0 <= ev.key <= K_KP5:
                             hnd.recording = -1
+                    '''
                 
                 
-               
                 
                 for i in range(len(posiciones)):
                     x = 0
@@ -124,13 +127,15 @@ if __name__ == '__main__':
                 
                 pygame.display.flip()
                 
-                
+               
                 
     except KeyboardInterrupt:
         pass
         
     finally:
+        m.vibrate(3)
         m.disconnect()
+        Servo1.limpiarServo()
         print()
 
     if HAVE_PYGAME:
