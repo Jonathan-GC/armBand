@@ -29,7 +29,7 @@ class CLassificador(object):
     
     #ojo con los clusters estos son lo que permiten el calculo perfecto de los datos
     clusters = 5
-    clf = joblib.load('modeloEntrenado.pkl')
+    clf = joblib.load('DATOS/modeloEntrenado.pkl')
     
     #Contructor de inicio
     def __init__(self):
@@ -37,7 +37,7 @@ class CLassificador(object):
         
     #Funcion de almacenanmiento de datos paso (etiqueta, valor del sensor)
     def store_data(self, target, vals):
-        with open("setDataCompleta.csv","a") as f:
+        with open("DATOS/allSET/setDataCompleta.csv","a") as f:
             
             flag = str(vals) + ", " + str(int(target)) + "\n"
             flag = flag.replace("(","")
@@ -58,7 +58,7 @@ class CLassificador(object):
         try:
             #entablo el modelo de datos .pkl
             print("A entrenar")
-            archivo = "setDataCompleta.csv"
+            archivo = "DATOS/allSET/setDataCompleta.csv"
             df = pd.read_csv(archivo)
         
             arregloX = df[df.columns[:-1]].values
@@ -96,7 +96,7 @@ class CLassificador(object):
             
             ##Exportacion del modelo entrenado
             ##clf es la variable calsificador en este caso será km
-            joblib.dump(reg,'modeloEntrenado.pkl')
+            joblib.dump(reg,'DATOS/modeloEntrenado.pkl')
         except ValueError:
             print("problemas para establecer el set de datos, intente de nuevo y Revise sus datos")
 
