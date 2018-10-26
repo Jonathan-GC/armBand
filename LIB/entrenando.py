@@ -7,7 +7,6 @@ import sys
 import struct
 import time
 
-from HardWare import Servo
 
 
 #Variables Publicas

@@ -83,23 +83,7 @@ if __name__ == '__main__':
                 for ev in pygame.event.get():
                     if ev.type == QUIT or (ev.type == KEYDOWN and ev.unicode == 'q'):
                         raise KeyboardInterrupt()
-                    '''
-                    elif ev.type == KEYDOWN:
-                        if K_0 <= ev.key <= K_5:
-                            contador +=1
-                            print("Grabando posicion " + posiciones[ev.key-K_0] + " dato No: " + str(contador) )                          
-                            hnd.recording = ev.key - K_0
-                            
-                        elif K_KP0 <= ev.key <= K_KP5:
-                            hnd.recording = ev.key - K_Kp0
-                        elif ev.unicode == 'r':
-                            m.cls.entrenar()
-                        elif ev.unicode == 'd':
-                            m.cls.limpiar_data()
-                    elif ev.type == KEYUP:
-                        if K_0 <= ev.key <= K_5 or K_KP0 <= ev.key <= K_KP5:
-                            hnd.recording = -1
-                    '''
+                        
                 
                 
                 
