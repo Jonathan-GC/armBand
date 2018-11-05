@@ -1,7 +1,7 @@
 import time
 import RPi.GPIO as GPIO
 ledDigital = 19
-ledAnalogo = 35
+ledAnalogo = 33
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(ledDigital, GPIO.OUT)
@@ -34,4 +34,4 @@ try:
 except KeyboardInterrupt:
     pass
 p.stop()
-#GPIO.cleanup()
+GPIO.cleanup()

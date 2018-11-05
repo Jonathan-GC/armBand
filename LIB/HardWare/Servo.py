@@ -46,11 +46,11 @@ class Servo():
 if __name__ == '__main__':
 
     try:
-        servo1 = Servo(32)
+        servo1 = Servo(33)
         while True:
             
             
-            for i in range(0,181,5):
+            for i in range(0,181,1):
                 print(i)
                 servo1.writeServo(i)
                 time.sleep(0.5)
