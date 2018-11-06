@@ -12,6 +12,7 @@ import time
 #Variables Publicas
 publish_EMG = [30,30,90]
 posiciones = ["Relajado","Puño","Señalar", "Pinza", "Meñique", "Abrir Mano"]
+NoData = False
 
 try:
     import pygame
@@ -65,7 +66,7 @@ if __name__ == '__main__':
             
             #Restrinjo el valor mas comun para que no cambie a cada rato
             if r != last_r:
-                #print(r)
+                print(r)
                 last_r = r
                 
             
@@ -81,6 +82,8 @@ if __name__ == '__main__':
                     if ev.type == QUIT or (ev.type == KEYDOWN and ev.unicode == 'q'):
                         raise KeyboardInterrupt()
                     elif ev.type == KEYDOWN:
+                        
+                        NoData = True
                         if K_0 <= ev.key <= K_5:
                             contador +=1
                             print("Grabando posicion " + posiciones[ev.key-K_0] + " dato No: " + str(contador) )                          
@@ -92,29 +95,32 @@ if __name__ == '__main__':
                             m.cls.entrenar()
                         elif ev.unicode == 'd':
                             m.cls.limpiar_data()
+                        elif ev.unicode == 'p':
+                            NoData = False
                     elif ev.type == KEYUP:
                         if K_0 <= ev.key <= K_5 or K_KP0 <= ev.key <= K_KP5:
                             hnd.recording = -1
                 
                 
-               
                 
-                for i in range(len(posiciones)):
-                    x = 0
-                    y = (1 + i) * 40
+                if(NoData == False):
                     
+                    for i in range(len(posiciones)):
+                        x = 0
+                        y = (1 + i) * 40
+                        
 
-                    clr = (0,200,0) if i == r else (255,255,255)
+                        clr = (0,200,0) if i == r else (255,255,255)
 
-                    txt = font.render(posiciones[i], True, (255,255,255))
-                    scr.blit(txt, (x + 20, y))
-                    
+                        txt = font.render(posiciones[i], True, (255,255,255))
+                        scr.blit(txt, (x + 20, y))
+                        
 
-                    txt = font.render('%d' % i, True, clr)
-                    scr.blit(txt, (x + 130, y))
-                   
-                    scr.fill((0,0,0), (x+145, y + txt.get_height() / 2 - 10, len(m.history) * 20, 20))
-                    scr.fill(clr, (x+145, y + txt.get_height() / 2 - 10, m.history_cnt[i] * 20, 20))
+                        txt = font.render('%d' % i, True, clr)
+                        scr.blit(txt, (x + 130, y))
+                       
+                        scr.fill((0,0,0), (x+145, y + txt.get_height() / 2 - 10, len(m.history) * 20, 20))
+                        scr.fill(clr, (x+145, y + txt.get_height() / 2 - 10, m.history_cnt[i] * 20, 20))
 
                     
                 

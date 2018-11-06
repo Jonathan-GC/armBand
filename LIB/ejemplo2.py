@@ -83,7 +83,7 @@ if __name__ == '__main__':
                     
             
             
-            
+            '''
             
             if HAVE_PYGAME:
                 
@@ -124,7 +124,7 @@ if __name__ == '__main__':
                 
                 pygame.display.flip()
                 
-               
+               '''
                 
     except KeyboardInterrupt:
         pass

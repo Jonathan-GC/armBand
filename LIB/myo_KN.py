@@ -50,7 +50,7 @@ class CLassificador(object):
         
     def limpiar_data(self):
         #escribiendo nulo borro toda la data y efectivamente lo cierro
-        with open("setDataCompleta.csv","w") as f:                      
+        with open("DATOS/allSET/setDataCompleta.csv","w") as f:                      
             f.write("")
             f.close()
     
