@@ -59,6 +59,7 @@ if __name__ == '__main__':
     m.connect()
     last_r = 0
     contador=0
+    
     try:
         while True:
             m.run()
